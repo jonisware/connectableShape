@@ -1,12 +1,9 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"><head>
-<?php
-require_once("/usr/local/wam2/lib/core.php");
-
-add_jquery();
-
-?>
-<script src="/wam/js/connectableshape.js" type="text/javascript" ></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<script src="connectableshape.js" type="text/javascript" ></script>
 <script>
 	
 
@@ -46,6 +43,9 @@ $(function() {
 					fillcolour:"#7770FF",
 					onclick:function(e){console.log('clicked rr');},
 					});
+<?php
+if ($_GET['type']=="loadtest"){
+?>
 	var s4=[];
 	var hex=[0,1,2,3,4,5,6,7,8,9,"A","B","C","D","E","F"];
 	for (var i=0; i<50; i++){
@@ -63,7 +63,9 @@ $(function() {
 		var c24b = s2.joinTo({shapeto:s4[i], type:connectableJoin.TypeEnum.BEZIER, socketfrom:0, socketto:1});
 		var c34b = s3.joinTo({shapeto:s4[i], type:connectableJoin.TypeEnum.BEZIER, socketfrom:0, socketto:1});
 	}
-
+<?php 
+}
+?>
 
 	var c12 = s1.joinTo({shapeto:s2,socketfrom:2});
 	var c12b = s1.joinTo({shapeto:s2, type:connectableJoin.TypeEnum.BEZIER,socketfrom:3});
@@ -91,6 +93,13 @@ $(function() {
 <body>
 
 <div id='thediv' class='thediv'></div>
+<form method="GET">
+<select name='type' onchange="this.form.submit()">
+	<option value="std" <?php echo ($_GET['type']!="loadtest"?"SELECTED":""); ?>>Multi Connected</option>
+	<option value="loadtest" <?php echo ($_GET['type']=="loadtest"?"SELECTED":""); ?>>Load Test</option>
+</select>
+</form>
+
 </body>
 </html>
 
