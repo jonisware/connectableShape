@@ -39,10 +39,7 @@ function connectableShape(options){
 		return(true);	
 	}
 	this.getPos=function(){
-	return({left:parseFloat($(_screenObject).attr("x")) ,top:parseFloat($(_screenObject).attr("y"))});
-//console.log({left:parseFloat($(_screenObject).attr("x")) ,top:parseFloat($(_screenObject).attr("y"))});
-//console.log($(_screenObject).offset());
-		return($(_screenObject).offset());
+		return({left:parseFloat($(_screenObject).attr("x")) ,top:parseFloat($(_screenObject).attr("y"))});
 	}
 
 	this.drawMe=function(){
@@ -184,6 +181,7 @@ function connectableShape(options){
 	_constructor();
 }
 
+
 function connectableJoin(options){
         var _self=this;
         var _settings = $.extend({
@@ -192,7 +190,7 @@ function connectableJoin(options){
 		socketfrom:0,
 		shapeto:null,
 		socketto:0,
-		type:"straight",
+		type:connectableJoin.TypeEnum.STRAIGHT,
                 linecolour:"#000",
                 onclick:function(clickevent){}, // callback function to call when the object is clicked.
                 }, options );
