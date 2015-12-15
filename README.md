@@ -41,6 +41,7 @@ This is Javascript SVG based library that allows you to create connectable and d
 
 ##Documentation
 ###Class - connectableShape
+This is the class that describes the individual shape object within the diagram. 
 ####Constructor
   connectableShape(options)
 #####Options
@@ -68,15 +69,17 @@ This returns the current SVG container for the shape.
 This sets the type for the object allowing you to change the object from, say a circle to a rounded rectangle. 
 It has one parameter - type and is a string that can be one of the shape types, e.g. "rectangle", "roundedrectangle", "circle".
 #####getPos()
-This returns the current position of the object within the container. It returns an objeccontaining a left and a top property. 
-#####drawMe()
+This returns the current position of the object within the container. It returns an objeccontaining a left and a top property. #####drawMe()
 This redraws the object. 
 #####joinTo(options)
 This joins this object to object spefified in the options. 
 NOTE. The options for this are the same as the options passed into the constructor for the connectableJoin class apart from the shapeFrom is pre-set to the current shape. 
 #####setActiveConnection(connectionObject)
 This allows you to set an active connection within the object. This should normally not be used but is called from the connectableJoin when it sets up the connection and the abiloity to move the connection if the object moves. 
+
+
 ###Class - connectableJoin
+This is the class that describes a connection between 2 shape objects. It is normally not referenced directly but returned from a joinTo method call from the connectableShape class. 
 ####Constructor
 connectableJoin(options)
 #####Options
