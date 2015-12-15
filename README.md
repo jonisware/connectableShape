@@ -69,7 +69,8 @@ This returns the current SVG container for the shape.
 This sets the type for the object allowing you to change the object from, say a circle to a rounded rectangle. 
 It has one parameter - type and is a string that can be one of the shape types, e.g. "rectangle", "roundedrectangle", "circle".
 #####getPos()
-This returns the current position of the object within the container. It returns an objeccontaining a left and a top property. #####drawMe()
+This returns the current position of the object within the container. It returns an objeccontaining a left and a top property.
+#####drawMe()
 This redraws the object. 
 #####joinTo(options)
 This joins this object to object spefified in the options. 
@@ -95,6 +96,7 @@ connectableJoin(options)
 > * connectableJoin.TypeEnum.BEZIER - for a curved line join
 * linecolour - The colour of the connecting line. This can be either a worded colour or a hex rgb colour.
 * onclick - A callback to be called when the line is clicked on. It has 1 parameter which is an object that contains e for the event object and u for the ui object of the dragged item.
+
 ####Methods
 #####drawMe()
 This redraws the connection. 
