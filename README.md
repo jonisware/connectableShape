@@ -4,6 +4,7 @@ This is Javascript SVG based library that allows you to create connectable and d
 ##Dependencies
 * jquery
 * jquery ui
+* for drag and drop to work on mobiles include touchpunch from http://touchpunch.furf.com/ (after you include jquery and jquery ui
 
 ##Usage
 ###create a SVG container for the shapes to go into. 
