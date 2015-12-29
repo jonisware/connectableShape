@@ -47,7 +47,7 @@ This is the class that describes the individual shape object within the diagram.
   connectableShape(options)
 #####Options
 * svgContainer - This allows you to specify where you wish this object to be placed. It defaults null.
-* type - This specifies the type of shape you wish to create. It can be one of the shape types, e.g. "rectangle", "roundedrectangle", "circle".
+* type - This specifies the type of shape you wish to create. It can be one of the shape types, e.g. "rectangle", "roundedrectangle", "circle", "domobject"
 * width - this is the width of the object in pixels.
 * height - This is the height of the object in pixels.
 * x - The horizontal position of top left corner in pixels.
@@ -86,16 +86,19 @@ This is the class that describes a connection between 2 shape objects. It is nor
 connectableJoin(options)
 #####Options
 * svgContainer - This allows you to specify where you wish this object to be placed. It defaults to the container of the shapeFrom object.
-* shapeFrom - This is the object that you want to have the link from and should be an instance of connectableShape
-* socketFrom - This is the index of the socket you wish to attach to in the object the link is going from. Sockets are indexed by this id from a numerical array of sockets counter clockwise from the top of the object depending on the shape. For most shapes it is one of the following numbers. 0 - top connector, 1 - right connector, 2 bottom connector, 4 left connector.
-* shapeTo - This is the object that you want to have the link to and should be an instance of connectableShape
-* socketTo - This is the index of the socket you wish to attach to in the object the link is going to. Sockets are indexed by this id from a numerical array of sockets counter clockwise from the top of the object depending on the shape. For most shapes it is one of the following numbers. 0 - top connector, 1 - right connector, 2 bottom connector, 4 left connector.
+* shapefrom - This is the object that you want to have the link from and should be an instance of connectableShape
+* socketfrom - This is the index of the socket you wish to attach to in the object the link is going from. Sockets are indexed by this id from a numerical array of sockets counter clockwise from the top of the object depending on the shape. For most shapes it is one of the following numbers. 0 - top connector, 1 - right connector, 2 bottom connector, 4 left connector.
+* fromend - This is a shape for the end of the connector that joins onto the shapeFrom and can be "none" for no end, "arrow" for an arrowhead or "many" for a crowsfoot.
+* shapeto - This is the object that you want to have the link to and should be an instance of connectableShape
+* socketto - This is the index of the socket you wish to attach to in the object the link is going to. Sockets are indexed by this id from a numerical array of sockets counter clockwise from the top of the object depending on the shape. For most shapes it is one of the following numbers. 0 - top connector, 1 - right connector, 2 bottom connector, 4 left connector.
+* toend - This is a shape for the end of the connector that joins onto the shapeTo and can be "none" for no end, "arrow" for an arrowhead or "many" for a crowsfoot.
 * type - This is one of the members of the enumerate connectableJoin.TypeEnum and can be one of
 > * connectableJoin.TypeEnum.STRAIGHT - for a straight line join
 > * connectableJoin.TypeEnum.LINE - for a straight line join
 > * connectableJoin.TypeEnum.STRAIGHTLINE - for a straight line join
 > * connectableJoin.TypeEnum.BEZIER - for a curved line join
 * linecolour - The colour of the connecting line. This can be either a worded colour or a hex rgb colour.
+* linewidth - A floating point line width, defaults to 1.
 * onclick - A callback to be called when the line is clicked on. It has 1 parameter which is an object that contains e for the event object and u for the ui object of the dragged item.
 
 ####Methods
