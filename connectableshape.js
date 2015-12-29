@@ -4,6 +4,8 @@ function connectableShape(options){
 	var _settings = $.extend({
 		svgContainer:null,
 		type:"rectangle",
+		relatedObject:null,
+		roundedness:null,
 		width:100,
 		height:100,
 		x:100,
@@ -39,7 +41,18 @@ function connectableShape(options){
 		return(true);	
 	}
 	this.getPos=function(){
-		return({left:parseFloat($(_screenObject).attr("x")) ,top:parseFloat($(_screenObject).attr("y"))});
+//console.log($(_screenObject).attr("width"));
+		var w= parseFloat($(_screenObject).outerWidth(true));
+		if (w==0 || isNaN(w)) w=parseFloat($(_screenObject).attr("width"));
+		var h= parseFloat($(_screenObject).outerHeight(true));
+		if (h==0 || isNaN(h)) h=parseFloat($(_screenObject).attr("height"));
+
+
+		return({left:parseFloat($(_screenObject).attr("x")) ,
+			top:parseFloat($(_screenObject).attr("y")) ,
+			width:w,
+			height:h,
+			});
 	}
 
 	this.drawMe=function(){
@@ -55,7 +68,7 @@ function connectableShape(options){
 		}
 		if (_screenObject ==null){
 			if (_connectableShapesData[_settings.type] && _connectableShapesData[_settings.type].create){
-				_screenObject=_connectableShapesData[_settings.type].create();
+				_screenObject=_connectableShapesData[_settings.type].create(_settings);
 				$(_settings.svgContainer).append(_screenObject);
 				if (typeof(_settings.onclick)=="function"){
 					$(_screenObject).on("click",_settings.onclick);
@@ -65,6 +78,12 @@ function connectableShape(options){
 		$(_screenObject).find("text").html(_settings.text);
 		_positionScreenObject();
 		_styleScreenObject();
+		$(window).resize(function (){
+					_positionScreenObject();
+					_styleScreenObject();
+					_redrawJoins();
+				});
+		
 		if (_settings.draggable) $(_screenObject).draggable()
 				.bind('dragstop', function(event, ui){ 
 					if (typeof(_settings.ondragstart)=="function"){
@@ -110,14 +129,26 @@ function connectableShape(options){
 	}
 	function _positionScreenObject(){
 //console.log(_screenObject);
-//console.log(_settings);
 
-		var x=(parseFloat(_settings.x)+parseFloat($(_screenObject).attr("cxoff")));
-		var y=(parseFloat(_settings.y)+parseFloat($(_screenObject).attr("cyoff")));
-		if ($(_screenObject).attr("usecx")==1){
-			$(_screenObject).attr({"cx":x,"cy":y});
+		var x; 
+		var y; 
+		if (_settings.type=="domobject"){
+//console.log(_settings);
+			x=_settings.x=$(_settings.relatedobject).position().left-1;
+			y=_settings.y=$(_settings.relatedobject).position().top-1;
+			var w=$(_settings.relatedobject).outerWidth(true)+2;
+			var h=$(_settings.relatedobject).outerHeight(true)+2;
+
+			$(_screenObject).attr({"x":x,"y":y, "width":w, "height":h});
+			$(_screenObject).css({"left":x, "top":y, "z-index":$(_settings.relatedobject).zIndex()-1});
 		} else {
-			$(_screenObject).attr({"x":x,"y":y});
+			x=(parseFloat(_settings.x)+parseFloat($(_screenObject).attr("cxoff")));
+			y=(parseFloat(_settings.y)+parseFloat($(_screenObject).attr("cyoff")));
+			if ($(_screenObject).attr("usecx")==1){
+				$(_screenObject).attr({"cx":x,"cy":y});
+			} else {
+				$(_screenObject).attr({"x":x,"y":y});
+			}
 		}
 	}
 
@@ -127,7 +158,7 @@ function connectableShape(options){
 
 
 	_connectableShapesData.circle={
-		create:function(){
+		create:function(settings){
 			var s = _makeConnectableShapeSVG("svg",{width:100,height:100,cxoff:-50,cyoff:-50,connectableShapeType:"circle"});
 			var grp = _makeConnectableShapeSVG("g",{transform:"translate(50,50)"});
 			var obj = _makeConnectableShapeSVG("circle",{x:50,y:50,r:49,connectableShapeType:"circle",usecx:1});
@@ -139,31 +170,60 @@ function connectableShape(options){
 		},
 		conn:[{x:50,y:0,nx:0,ny:-1},{x:100,y:50,nx:1,ny:0},{x:50,y:100,nx:0,ny:1},{x:0,y:50,nx:-1,ny:0}]};
 	_connectableShapesData.rectangle={
-		create:function(){
+		create:function(settings){
 			var s = _makeConnectableShapeSVG("svg",{width:100,height:100,cxoff:-50,cyoff:-25,connectableShapeType:"circle"});
 			var grp = _makeConnectableShapeSVG("g",{});
-			var obj= _makeConnectableShapeSVG("rect",{x:0,y:25,width:100,height:50,cxoff:-50,cyoff:-25,connectableShapeType:"rectangle"});
+			var obj= _makeConnectableShapeSVG("rect",{x:0,y:0,width:"100%",height:"100%",cxoff:-50,cyoff:-50,connectableShapeType:"rectangle"});
 			$(grp).append(obj);
-			var tobj = _makeConnectableShapeSVG("text",{x:"50",y:"50","text-anchor":"middle","dominant-baseline":"middle"});
+			var tobj = _makeConnectableShapeSVG("text",{x:"50%",y:"50%","text-anchor":"middle","dominant-baseline":"middle"});
 			$(grp).append(tobj);
 			$(s).append(grp);
 			return(s);
 		},
-		conn:[{x:50,y:25,nx:0,ny:-1},{x:100,y:50,nx:1,ny:0},{x:50,y:75,nx:0,ny:1},{x:0,y:50,nx:-1,ny:0}]};
+		conn:[{x:50,y:0,nx:0,ny:-1},{x:100,y:50,nx:1,ny:0},{x:50,y:100,nx:0,ny:1},{x:0,y:50,nx:-1,ny:0}]};
 	_connectableShapesData.roundedrectangle={
-		create:function(rnd){
-			if (!rnd)rnd=10;
-			rnd=parseFloat(rnd);
-			var s = _makeConnectableShapeSVG("svg",{width:100,height:100,cxoff:-50,cyoff:-25,connectableShapeType:"circle"});
+		create:function(settings){
+			var rnd=parseFloat(_settings.roundness);
+			if (isNaN(rnd)) rnd=10;
+
+			var s = _makeConnectableShapeSVG("svg",{width:100,height:100,cxoff:-50,cyoff:-25,connectableShapeType:"roundedrectangle"});
 			var grp = _makeConnectableShapeSVG("g",{});
-			var obj= _makeConnectableShapeSVG("rect",{x:0,y:25,width:100,height:50,cxoff:-50,cyoff:-25,rx:rnd,ry:rnd,connectableShapeType:"roundedrectangle"});
+			var obj= _makeConnectableShapeSVG("rect",{x:0,y:0,width:"100%",height:"100%",cxoff:-50,cyoff:-50,rx:rnd,ry:rnd,connectableShapeType:"roundedrectangle"});
 			$(grp).append(obj);
-			var tobj = _makeConnectableShapeSVG("text",{x:"50",y:"50","text-anchor":"middle","dominant-baseline":"middle"});
+			var tobj = _makeConnectableShapeSVG("text",{x:"50%",y:"50%","text-anchor":"middle","dominant-baseline":"middle"});
 			$(grp).append(tobj);
 			$(s).append(grp);
 			return(s);
 		},
-		conn:[{x:50,y:25,nx:0,ny:-1},{x:100,y:50,nx:1,ny:0},{x:50,y:75,nx:0,ny:1},{x:0,y:50,nx:-1,ny:0}]};
+		conn:[{x:50,y:0,nx:0,ny:-1},{x:100,y:50,nx:1,ny:0},{x:50,y:100,nx:0,ny:1},{x:0,y:50,nx:-1,ny:0}]};
+	_connectableShapesData.domobject={
+		create:function(settings){
+			
+			//.resize( handler )
+			var _obj = settings.relatedobject;
+			var rnd=parseFloat(_settings.roundness);
+			if (isNaN(rnd)) rnd=0;	
+
+			var s = _makeConnectableShapeSVG("svg",{width:$(_obj).width()+2,
+								height:$(_obj).height()+2,
+								cxoff:($(_obj).width()+2)/2,
+								cyoff:($(_obj).height()+2)/2,
+								connectableShapeType:"domobject"});
+			var grp = _makeConnectableShapeSVG("g",{width:"100%", height:"100%", preserveAspectRatio:"none" });
+			var obj= _makeConnectableShapeSVG("rect",{x:0,y:0,
+								width:"100%",
+								height:"100%",
+								cxoff:"50%",
+								cyoff:"50%",
+								rx:rnd,ry:rnd,
+								connectableShapeType:"domobj"});
+			$(grp).append(obj);
+			var tobj = _makeConnectableShapeSVG("text",{x:"50%",y:"50%","text-anchor":"middle","dominant-baseline":"middle"});
+			$(grp).append(tobj);
+			$(s).append(grp);
+			return(s);
+		},
+		conn:[{x:50,y:0,nx:0,ny:-1},{x:100,y:50,nx:1,ny:0},{x:50,y:100,nx:0,ny:1},{x:0,y:50,nx:-1,ny:0}]};
 
 	function _makeConnectableShapeSVG(tag, attrs) {
 	        var el= document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -190,13 +250,18 @@ function connectableJoin(options){
 		socketfrom:0,
 		shapeto:null,
 		socketto:0,
+		fromend:"none",
+		toend:"none",
+//		endsize:5,
 		type:connectableJoin.TypeEnum.STRAIGHT,
                 linecolour:"#000",
+		linewidth:1,
                 onclick:function(clickevent){}, // callback function to call when the object is clicked.
                 }, options );
 //console.log(options);
 //console.log(_settings);
 	var _screenObject=null;
+	var _zindex=10;
 	this.drawMe = function(){
 		// check and get the ends and get the normals
 		if(!_checkvalid())return(false);
@@ -205,33 +270,60 @@ function connectableJoin(options){
 
 		var fpos=_settings.shapefrom.getPos();
 		var tpos=_settings.shapeto.getPos();
-		
-		var path="M "+(fpos.left+fromsock.x)+" "+(fpos.top+fromsock.y);
 
+		var fsx=(fromsock.x/100)*fpos.width; 
+		var fsy=(fromsock.y/100)*fpos.height;
+		var tsx=(tosock.x/100)*tpos.width; 
+		var tsy=(tosock.y/100)*tpos.height; 
+//console.log(fpos.height, fsx,fsy," ",tsx, tsy);
+
+		
+		var path="M "+(fpos.left+fsx)+" "+(fpos.top+fsy);
+//		if (_settings.fromend=="arrow"){
+//			path+=_addArrow((fpos.left+fsx),(fpos.top+fsy),_settings.endsize, fromsock.nx, fromsock.ny);
+//		}
 		if (_settings.type==connectableJoin.TypeEnum.STRAIGHT){
-			path+=" L "+(tpos.left+tosock.x)+" "+(tpos.top+tosock.y);
+			path+=" L "+(tpos.left+tsx)+" "+(tpos.top+tsy);
 		}
 		if (_settings.type==connectableJoin.TypeEnum.BEZIER){
-			var mx = Math.abs(fpos.left-tpos.left)/2;
-			var my = Math.abs(fpos.top-tpos.top)/2;
-			path+=" C "+(fpos.left+fromsock.x+(mx*fromsock.nx))+" "+(fpos.top+fromsock.y+(my*fromsock.ny))+
-				"  "+(tpos.left+tosock.x+(mx*tosock.nx))+" "+(tpos.top+tosock.y+(my*tosock.ny))+
-				"  "+(tpos.left+tosock.x)+" "+(tpos.top+tosock.y);
+			var mx = Math.max(Math.abs(fpos.left-tpos.left)/2,(75*_settings.linewidth));
+			var my = Math.max(Math.abs(fpos.top-tpos.top)/2,(75*_settings.linewidth));
+			path+=" C "+(fpos.left+fsx+(mx*fromsock.nx))+" "+(fpos.top+fsy+(my*fromsock.ny))+
+				"  "+(tpos.left+tsx+(mx*tosock.nx))+" "+(tpos.top+tsy+(my*tosock.ny))+
+				"  "+(tpos.left+tsx)+" "+(tpos.top+tsy);
 		}
+//		if (_settings.toend=="arrow"){
+//			path+=_addArrow((tpos.left+tsx),(tpos.top+tsy),_settings.endsize, tosock.nx, tosock.ny);
+//		}
 
-		var s = _makeConnectableShapeSVG("svg",{});
+		var s = _makeConnectableShapeSVG("svg",{width:"100%", height:"100%",style:"z-index:"+_zindex});
 		var grp = _makeConnectableShapeSVG("g",{});
-		var obj= _makeConnectableShapeSVG("path",{d:path,stroke:_settings.linecolour, fill:"none"});
+		var o = {d:path, stroke:_settings.linecolour, "stroke-width":_settings.linewidth, fill:"none", style:""};
+		
+		if (_settings.fromend=="arrow") o.style+="marker-start:url(#csmarkerarrowheadstart);";
+		if (_settings.toend=="arrow") o.style+="marker-end:url(#csmarkerarrowheadend);";
+		if (_settings.fromend=="many") o.style+="marker-start:url(#csmarkercrowsfootstart);";
+		if (_settings.toend=="many") o.style+="marker-end:url(#csmarkercrowsfootend);";
+
+		var obj= _makeConnectableShapeSVG("path",o);
 		$(grp).append(obj);
 //		var tobj = _makeConnectableShapeSVG("text",{x:"50",y:"50","text-anchor":"middle","dominant-baseline":"middle"});
 //		$(grp).append(tobj);
 		$(s).append(grp);
 		$(_screenObject).remove();
 		_screenObject=s;
-		//$(_settings.svgContainer).append(_screenObject);
 		$(_settings.svgContainer).prepend(_screenObject);
 		
 	}
+/*	function _addArrow(px,py,s,nx,ny){
+//console.log(px,py,s,nx,ny);
+		var path=" L "+(px+(nx*s)-(ny*s))+" "+(py+(ny*s)+(nx*s));
+		path+=" L "+(px+(nx*s)+(ny*s))+" "+(py-(nx*s)+(ny*s));
+		path+=" L "+(px)+" "+(py);
+//console.log(path);
+		return(path);
+	}
+*/
 	function _checkvalid(){
 		if ((_settings.shapefrom==null) || (!_settings.shapefrom.connectors)){
 			throw "Missing shape from";
@@ -271,6 +363,58 @@ function connectableJoin(options){
 		if (_settings.svgContainer==null) _settings.svgContainer=_settings.shapefrom.getSVGContainer();
 		_settings.shapefrom.setActiveConnection(_self);
 		_settings.shapeto.setActiveConnection(_self);
+		// see if we have the markers defined. if not define them
+		if (!($("#csmarkerarrowhead") && $("#csmarkerarrowhead")[0])){
+			var defs = _makeConnectableShapeSVG("defs",{});
+			var marker = _makeConnectableShapeSVG("marker",{id:"csmarkerarrowheadstart", 
+					markerWidth:"10",
+					markerHeight:"10",
+					refX:"0",
+					refY:"5",
+					orient:"auto"
+					});
+    			var markerpath=_makeConnectableShapeSVG("path",{d:"M10,10 L10,0 L0,5 L10,10", stroke:_settings.linecolour, fill:_settings.linecolour});
+			$(marker).append(markerpath);
+			$(defs).append(marker);
+
+			var marker = _makeConnectableShapeSVG("marker",{id:"csmarkerarrowheadend", 
+					markerWidth:"10",
+					markerHeight:"10",
+					refX:"10",
+					refY:"5",
+					orient:"auto"
+					});
+    			var markerpath=_makeConnectableShapeSVG("path",{d:"M0,0 L0,10 L10,5 L0,0", stroke:_settings.linecolour, fill:_settings.linecolour});
+			$(marker).append(markerpath);
+			$(defs).append(marker);
+
+			marker = _makeConnectableShapeSVG("marker",{id:"csmarkercrowsfootstart", 
+					markerWidth:"10",
+					markerHeight:"10",
+					refX:"0",
+					refY:"5",
+					orient:"auto"
+					});
+    			markerpath=_makeConnectableShapeSVG("path",{d:"M0,0 L10,5 L0,10", stroke:_settings.linecolour, fill:"none"});
+			$(marker).append(markerpath);
+			$(defs).append(marker);
+
+			marker = _makeConnectableShapeSVG("marker",{id:"csmarkercrowsfootend", 
+					markerWidth:"10",
+					markerHeight:"10",
+					refX:"10",
+					refY:"5",
+					orient:"auto"
+					});
+    			markerpath=_makeConnectableShapeSVG("path",{d:"M10,0 L0,5 L10,10", stroke:_settings.linecolour, fill:"none"});
+			$(marker).append(markerpath);
+			$(defs).append(marker);
+			$(_settings.svgContainer).prepend(defs);
+		}
+		_zindex = 10;
+		$(_settings.svgContainer).children().each(function(){
+			_zindex = Math.min(parseInt($(this).zIndex()), _zindex);
+		});
 		_self.drawMe();
 	}
 	_constructor();
