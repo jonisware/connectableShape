@@ -159,9 +159,9 @@ function connectableShape(options){
 
 	_connectableShapesData.circle={
 		create:function(settings){
-			var s = _makeConnectableShapeSVG("svg",{width:100,height:100,cxoff:-50,cyoff:-50,connectableShapeType:"circle"});
-			var grp = _makeConnectableShapeSVG("g",{transform:"translate(50,50)"});
-			var obj = _makeConnectableShapeSVG("circle",{x:50,y:50,r:49,connectableShapeType:"circle",usecx:1});
+			var s = _makeConnectableShapeSVG("svg",{width:settings.width,height:settings.height,cxoff:0-(settings.width/2),cyoff:0-(settings.height/2),connectableShapeType:"circle"});
+			var grp = _makeConnectableShapeSVG("g",{transform:"translate("+(settings.width/2)+","+(settings.height/2)+")"});
+			var obj = _makeConnectableShapeSVG("circle",{x:"50%",y:"50%",r:"49%",connectableShapeType:"circle",usecx:1});
 			$(grp).append(obj);
 			var tobj = _makeConnectableShapeSVG("text",{x:"0",y:"0","text-anchor":"middle","dominant-baseline":"middle"});
 			$(grp).append(tobj);
@@ -171,7 +171,7 @@ function connectableShape(options){
 		conn:[{x:50,y:0,nx:0,ny:-1},{x:100,y:50,nx:1,ny:0},{x:50,y:100,nx:0,ny:1},{x:0,y:50,nx:-1,ny:0}]};
 	_connectableShapesData.rectangle={
 		create:function(settings){
-			var s = _makeConnectableShapeSVG("svg",{width:100,height:100,cxoff:-50,cyoff:-25,connectableShapeType:"circle"});
+			var s = _makeConnectableShapeSVG("svg",{width:settings.width,height:settings.height,cxoff:0-(settings.width/2),cyoff:0-(settings.height/2),connectableShapeType:"rectangle"});
 			var grp = _makeConnectableShapeSVG("g",{});
 			var obj= _makeConnectableShapeSVG("rect",{x:0,y:0,width:"100%",height:"100%",cxoff:-50,cyoff:-50,connectableShapeType:"rectangle"});
 			$(grp).append(obj);
@@ -186,7 +186,7 @@ function connectableShape(options){
 			var rnd=parseFloat(_settings.roundness);
 			if (isNaN(rnd)) rnd=10;
 
-			var s = _makeConnectableShapeSVG("svg",{width:100,height:100,cxoff:-50,cyoff:-25,connectableShapeType:"roundedrectangle"});
+			var s = _makeConnectableShapeSVG("svg",{width:settings.width,height:settings.height,cxoff:0-(settings.width/2),cyoff:0-(settings.height/2),connectableShapeType:"roundedrectangle"});
 			var grp = _makeConnectableShapeSVG("g",{});
 			var obj= _makeConnectableShapeSVG("rect",{x:0,y:0,width:"100%",height:"100%",cxoff:-50,cyoff:-50,rx:rnd,ry:rnd,connectableShapeType:"roundedrectangle"});
 			$(grp).append(obj);
